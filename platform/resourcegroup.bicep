@@ -10,18 +10,13 @@ param resourceGroupName string
 
 @description('Optional tags applied to the resource group.')
 param tags object = {}
-var normalizedTags = empty(tags) ? null : tags
-
-// Service
-@description('Flag to determine whether to deploy the service. Set to true to deploy, false to skip deployment. Accepted values: "true", "false".')
-param deployServiceString string
-var deployService = bool(deployServiceString)
+var normalisedTags = empty(tags) ? null : tags
 
 // Resource Group
-module resourceGroup 'br/public:avm/res/resources/resource-group:0.4.1' = if (deployService && deployResourceGroup) {
+module resourceGroup 'br/public:avm/res/resources/resource-group:0.4.1' = if (deployResourceGroup) {
   params: {
     name: resourceGroupName
     location: location
-    tags: normalizedTags
+    tags: normalisedTags
   }
 }

@@ -6,7 +6,7 @@ param location string = resourceGroup().location
 
 @description('Optional tags applied to the resources.')
 param tags object = {}
-var normalizedTags = empty(tags) ? null : tags
+var normalisedTags = empty(tags) ? null : tags
 
 // Virtual Network
 param virtualNetworkName string
@@ -40,7 +40,7 @@ module resource 'br/public:resource_module' = if (deployService && deployResourc
   params: {
     name: resourceName
     location: location
-    tags: normalizedTags
+    tags: normalisedTags
     subnetResourceId: subnet.id
   }
 }

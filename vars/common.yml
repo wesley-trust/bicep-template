@@ -7,31 +7,31 @@ variables:
   # Tag configuration
   owner: platform-team
 
-  # Service configuration
-  deployService: true # Setting to false will prevent creation of all dependent resources, overriding individual variables, any resources deployed will be detached or deleted as per the allowDeleteOnUnmanage pipeline parameter
-
   # Resource Group configuration
   deployResourceGroup: true # Setting to false will prevent creation, any resources deployed will be detached or deleted as per the allowDeleteOnUnmanage pipeline parameter, any dependent resources will fail to deploy
   deploymentVersion: 001
   resourceGroup: rg-$(service)-$(environment)-$(regionCode)-$(deploymentVersion)
 
-  # Resource configuration
+  # Service configuration
+  deployService: true # Setting to false will prevent creation of all dependent resources, overriding individual variables, any resources deployed will be detached or deleted as per the allowDeleteOnUnmanage pipeline parameter
+
+  ## Resource configuration
   deployResource: true # Setting to false will prevent creation, any resources deployed will be detached or deleted as per the allowDeleteOnUnmanage pipeline parameter
   resourceAbbreviationInstanceVersion: 001
   resourceAbbreviation-001-name: resource-$(service)-$(environment)-$(regionCode)-$(resourceAbbreviationInstanceVersion)
 
-  # Virtual Network configuration
+  ## Virtual Network configuration
   vNetInstanceVersion: 001
   networkDeploymentVersion: 001
   networkService: "network"
   networkResourceGroup: rg-$(networkService)-$(environment)-$(regionCode)-$(networkDeploymentVersion)
 
-  ## Virtual Network: vnet-001
+  ### Virtual Network: vnet-001
   vnet-001-name: vnet-$(networkService)-$(environment)-$(regionCode)-$(vNetInstanceVersion)
 
-  # Subnet configuration
+  ### Subnet configuration
   subnetInstanceVersion: 001
 
-  ## Subnet: snet-001
+  ### Subnet: snet-001
   snet-001-resource: "resourceAbbreviation"
   snet-001-name: snet-$(networkService)-$(environment)-$(regionCode)-vnet-$(vNetInstanceVersion)-$(snet-001-resource)-$(subnetInstanceVersion)

@@ -10,8 +10,5 @@ param tags = {
   service: '#{{ service }}'
 }
 
-// Service
-param deployServiceString = '#{{ deployService }}'
-
 // Resource Group
 param deployResourceGroupString = '#{{ deployResourceGroup }}'
