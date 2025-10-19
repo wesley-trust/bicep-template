@@ -1,0 +1,17 @@
+{
+  "resourceType": "Microsoft.Resources/resourceGroups",
+  "tags": {
+    "environment": "dev",
+    "owner": "platform-team",
+    "service": "service"
+  },
+  "health": {
+    "provisioningState": "Succeeded"
+  },
+  "resources": [
+    {
+      "name": "rg-service-dev-weu-#{{ deploymentVersion }}",
+      "location": "westeurope"
+    }
+  ]
+}

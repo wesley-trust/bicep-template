@@ -1,0 +1,3 @@
+# Common/shared variables
+variables:
+  environment: ppr

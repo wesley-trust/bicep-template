@@ -1,0 +1,5 @@
+# Common/shared variables
+variables:
+  regionCode: weu
+  region: westeurope
+  regionDisplay: West Europe

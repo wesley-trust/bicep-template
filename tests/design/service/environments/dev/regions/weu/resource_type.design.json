@@ -1,0 +1,17 @@
+{
+  "resourceType": "Microsoft.Resources/resource_type",
+  "tags": {
+    "environment": "dev",
+    "owner": "platform-team",
+    "service": "service"
+  },
+  "health": {
+    "provisioningState": "Succeeded"
+  },
+  "resources": [
+    {
+      "name": "rt-service-dev-weu-001",
+      "location": "westeurope"
+    }
+  ]
+}

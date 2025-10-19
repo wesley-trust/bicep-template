@@ -1,0 +1,192 @@
+# Run Conditions
+trigger:
+  batch: true
+  branches:
+    include:
+      - feature/*
+      - release/*
+  paths:
+    include:
+      - platform/
+      - pipeline/
+      - scripts/
+      - tests/
+      - vars/
+
+schedules:
+  - cron: "0 0 * * *"
+    displayName: Daily Midnight UTC
+    branches:
+      include:
+        - main
+    always: true
+
+parameters:
+  # Global flags
+  - name: enableProduction
+    displayName: "Enable Production"
+    type: boolean
+    default: false
+  - name: drInvocation
+    displayName: "Invoke Pipeline DR Operation"
+    type: boolean
+    default: false
+
+  # Bicep test toggles & settings
+  - name: doNotRunBicepTestsResourceGroup
+    displayName: "Bicep Tests: Skip Resource Group"
+    type: boolean
+    default: false
+  - name: doNotRunBicepTestsService
+    displayName: "Bicep Tests: Skip Service"
+    type: boolean
+    default: false
+  - name: doNotRunUnit
+    displayName: "Bicep Tests: Skip Unit"
+    type: boolean
+    default: false
+  - name: doNotRunIntegration
+    displayName: "Bicep Tests: Skip Integration"
+    type: boolean
+    default: false
+  - name: doNotRunRegression
+    displayName: "Bicep Tests: Skip Regression"
+    type: boolean
+    default: false
+  - name: doNotRunSmoke
+    displayName: "Bicep Tests: Skip Smoke"
+    type: boolean
+    default: false
+
+  # Environment skips
+  - name: skip_dev
+    displayName: "Skip Environments: Development"
+    type: boolean
+    default: false
+  - name: skip_qa
+    displayName: "Skip Environments: QA"
+    type: boolean
+    default: true
+  - name: skip_ppr
+    displayName: "Skip Environments: Pre-Production"
+    type: boolean
+    default: true
+
+  # Region skips
+  - name: skip_primary
+    displayName: "Skip Regions: Primary"
+    type: boolean
+    default: false
+  - name: skip_secondary
+    displayName: "Skip Regions: Secondary"
+    type: boolean
+    default: false
+
+extends:
+  template: service.settings.yml
+  parameters:
+    enableProduction: ${{ parameters.enableProduction }}
+    runReviewStage: false
+    drInvocation: ${{ parameters.drInvocation }}
+    skipEnvironments:
+      dev: ${{ parameters.skip_dev }}
+      qa: ${{ parameters.skip_qa }}
+      ppr: ${{ parameters.skip_ppr }}
+    skipRegions:
+      primary: ${{ parameters.skip_primary }}
+      secondary: ${{ parameters.skip_secondary }}
+    globalDependsOn: validation
+    pipelineType: auto
+    actionGroups:
+      - name: bicep_tests_resource_group_ci
+        enabled: ${{ and( or(not(parameters.doNotRunUnit), not(parameters.doNotRunIntegration)), not(parameters.doNotRunBicepTestsResourceGroup) ) }}
+        type: powershell
+        scriptTask: azureCli
+        kind: pester
+        variableOverridesEnabled: true
+        variableOverrides:
+          dynamicDeploymentVersionEnabled: true
+          # Example of how to set environment variables to exclude resource types or properties from CI tests
+          # excludeTypeResourceType: true
+          # excludePropertyNameOfProperty: true
+        tokenReplaceEnabled: true
+        tokenTargetPatterns:
+          - platform/resourcegroup.bicepparam
+          - tests/design/resource_group/**/*.design.json
+        environments:
+          - dev
+        actions:
+          - name: unit_tests
+            enabled: ${{ not(parameters.doNotRunUnit) }}
+            scriptPath: scripts/pester_run.ps1
+            arguments: "-PathRoot tests -Type unit -TestData @{Name='resource_group'} -ResultsFile TestResults/bicep_tests_resource_group_ci_unit_tests.xml"
+            condition: or(eq(variables['Build.Reason'], 'IndividualCI'), eq(variables['Build.Reason'], 'BatchedCI'))
+          - name: integration_tests
+            enabled: ${{ not(parameters.doNotRunIntegration) }}
+            scriptPath: scripts/pester_run.ps1
+            arguments: "-PathRoot tests -Type integration -TestData @{Name='resource_group'} -ResultsFile TestResults/bicep_tests_resource_group_ci_integration_tests.xml"
+            condition: eq(variables['Build.Reason'], 'PullRequest')
+      - name: bicep_tests_resource_group
+        enabled: ${{ and( or(not(parameters.doNotRunRegression), not(parameters.doNotRunSmoke)), not(parameters.doNotRunBicepTestsResourceGroup) ) }}
+        type: powershell
+        scriptTask: azureCli
+        kind: pester
+        condition: eq(variables['Build.Reason'], 'Schedule')
+        tokenReplaceEnabled: true
+        tokenTargetPatterns:
+          - tests/design/resource_group/**/*.design.json
+        actions:
+          - name: regression_tests
+            enabled: ${{ not(parameters.doNotRunRegression) }}
+            scriptPath: scripts/pester_run.ps1
+            arguments: "-PathRoot tests -Type regression -TestData @{Name='resource_group'} -ResultsFile TestResults/bicep_tests_resource_group_regression_tests.xml"
+          - name: smoke_tests
+            enabled: ${{ not(parameters.doNotRunSmoke) }}
+            scriptPath: scripts/pester_run.ps1
+            arguments: "-PathRoot tests -Type smoke -TestData @{Name='resource_group'} -ResultsFile TestResults/bicep_tests_resource_group_smoke_tests.xml"
+      - name: bicep_tests_service_ci
+        enabled: ${{ and( or(not(parameters.doNotRunUnit), not(parameters.doNotRunIntegration)), not(parameters.doNotRunBicepTestsService) ) }}
+        type: powershell
+        scriptTask: azureCli
+        kind: pester
+        variableOverridesEnabled: true
+        variableOverrides:
+          dynamicDeploymentVersionEnabled: true
+          # Example of how to set environment variables to exclude resource types or properties from CI tests
+          # excludeTypeResourceType: true
+          # excludePropertyNameOfProperty: true
+        tokenReplaceEnabled: true
+        tokenTargetPatterns:
+          - platform/*.bicepparam
+          - tests/design/service/**/*.design.json
+        environments:
+          - dev
+        actions:
+          - name: unit_tests
+            enabled: ${{ not(parameters.doNotRunUnit) }}
+            scriptPath: scripts/pester_run.ps1
+            arguments: "-PathRoot tests -Type unit -TestData @{Name='service'} -ResultsFile TestResults/bicep_tests_service_ci_unit_tests.xml"
+            condition: or(eq(variables['Build.Reason'], 'IndividualCI'), eq(variables['Build.Reason'], 'BatchedCI'))
+          - name: integration_tests
+            enabled: ${{ not(parameters.doNotRunIntegration) }}
+            scriptPath: scripts/pester_run.ps1
+            arguments: "-PathRoot tests -Type integration -TestData @{Name='service'} -ResultsFile TestResults/bicep_tests_service_ci_integration_tests.xml"
+            condition: eq(variables['Build.Reason'], 'PullRequest')
+      - name: bicep_tests_service
+        enabled: ${{ and( or(not(parameters.doNotRunRegression), not(parameters.doNotRunSmoke)), not(parameters.doNotRunBicepTestsService) ) }}
+        type: powershell
+        scriptTask: azureCli
+        kind: pester
+        condition: eq(variables['Build.Reason'], 'Schedule')
+        tokenReplaceEnabled: true
+        tokenTargetPatterns:
+          - tests/design/service/**/*.design.json
+        actions:
+          - name: regression_tests
+            enabled: ${{ not(parameters.doNotRunRegression) }}
+            scriptPath: scripts/pester_run.ps1
+            arguments: "-PathRoot tests -Type regression -TestData @{Name='service'} -ResultsFile TestResults/bicep_tests_service_regression_tests.xml"
+          - name: smoke_tests
+            enabled: ${{ not(parameters.doNotRunSmoke) }}
+            scriptPath: scripts/pester_run.ps1
+            arguments: "-PathRoot tests -Type smoke -TestData @{Name='service'} -ResultsFile TestResults/bicep_tests_service_smoke_tests.xml"
