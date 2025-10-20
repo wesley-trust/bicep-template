@@ -103,6 +103,7 @@ extends:
         type: powershell
         scriptTask: azureCli
         kind: pester
+        condition: ne(variables['Build.Reason'], 'Schedule')
         variableOverridesEnabled: true
         variableOverrides:
           dynamicDeploymentVersionEnabled: true
@@ -149,6 +150,7 @@ extends:
         type: powershell
         scriptTask: azureCli
         kind: pester
+        condition: ne(variables['Build.Reason'], 'Schedule')
         variableOverridesEnabled: true
         variableOverrides:
           dynamicDeploymentVersionEnabled: true
