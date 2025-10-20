@@ -2,7 +2,7 @@
 
 ## Mission Overview
 - **Repository scope:** Reusable Bicep service template. Provides the complete pipeline and test scaffolding shared by service repos so new projects start from a working baseline.
-- **Primary pipeline files:** `pipeline/service.deploy.pipeline.yml` exposes Azure DevOps parameters; `pipeline/service.settings.yml` handles the dispatcher handshake; `pipeline/service.tests.pipeline.yml` and `pipeline/service.release.pipeline.yml` cover CI and semantic releases.
+- **Primary pipeline files:** `pipeline/service.deploy.pipeline.yml` exposes Azure DevOps parameters; `pipeline/service.settings.yml` handles the dispatcher handshake; `pipeline/service.tests.pipeline.yml` and `pipeline/service.publish.pipeline.yml` cover CI and semantic releases.
 - **Action groups:** `bicep_actions` deploys the resource group before the service Bicep module. `bicep_tests_resource_group` and `bicep_tests_service` execute Pester suites via Azure CLI (`kind: pester`) so the shared templates emit NUnit XML to `TestResults/<actionGroup>_<action>.xml`.
 - **Dependencies:** The settings template references `wesley-trust/pipeline-dispatcher`, which in turn locks `wesley-trust/pipeline-common`. Review those repos when diagnosing pipeline behaviour or contracts.
 
