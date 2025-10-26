@@ -4,7 +4,7 @@ Reusable starting point for Wesley Trust Bicep services. The template mirrors th
 
 ## Getting Started
 - Clone this repository as the base for your new service.
-- Choose a service moniker (lowercase, no spaces) and service slug (lowercase with underscores). Example: `containerservices` and `container_services`.
+- Choose a service moniker (lowercase, no spaces) and service (lowercase with underscores). Example: `containerservices` and `container_services`.
 - Rename the following to match your service moniker:
   - `pipeline/service.*.yml`
   - `platform/service.bicep` and `platform/service.bicepparam`
