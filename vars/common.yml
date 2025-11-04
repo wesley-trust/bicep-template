@@ -12,6 +12,22 @@ variables:
   deploymentVersion: 001
   resourceGroup: rg-$(service)-$(environment)-$(regionCode)-$(deploymentVersion)
 
+  # Virtual Network configuration
+  vNetInstanceVersion: 001
+  networkDeploymentVersion: 001
+  networkService: "network"
+  networkResourceGroup: rg-$(networkService)-$(environment)-$(regionCode)-$(networkDeploymentVersion)
+
+  ## Virtual Network: vnet-001
+  vnet-001-name: vnet-$(networkService)-$(environment)-$(regionCode)-$(vNetInstanceVersion)
+
+  ## Subnet configuration
+  subnetInstanceVersion: 001
+
+  ## Subnet: snet-001
+  snet-001-resource: "resourceAbbreviation"
+  snet-001-name: snet-$(networkService)-$(environment)-$(regionCode)-vnet-$(vNetInstanceVersion)-$(snet-001-resource)-$(subnetInstanceVersion)
+
   # Service configuration
   deployService: true # Setting to false will prevent creation of all dependent resources, overriding individual variables, any resources deployed will be detached or deleted as per the allowDeleteOnUnmanage pipeline parameter
 
@@ -19,19 +35,3 @@ variables:
   deployResource: true # Setting to false will prevent creation, any resources deployed will be detached or deleted as per the allowDeleteOnUnmanage pipeline parameter
   resourceAbbreviationInstanceVersion: 001
   resourceAbbreviation-001-name: resource-$(service)-$(environment)-$(regionCode)-$(resourceAbbreviationInstanceVersion)
-
-  ## Virtual Network configuration
-  vNetInstanceVersion: 001
-  networkDeploymentVersion: 001
-  networkService: "network"
-  networkResourceGroup: rg-$(networkService)-$(environment)-$(regionCode)-$(networkDeploymentVersion)
-
-  ### Virtual Network: vnet-001
-  vnet-001-name: vnet-$(networkService)-$(environment)-$(regionCode)-$(vNetInstanceVersion)
-
-  ### Subnet configuration
-  subnetInstanceVersion: 001
-
-  ### Subnet: snet-001
-  snet-001-resource: "resourceAbbreviation"
-  snet-001-name: snet-$(networkService)-$(environment)-$(regionCode)-vnet-$(vNetInstanceVersion)-$(snet-001-resource)-$(subnetInstanceVersion)
